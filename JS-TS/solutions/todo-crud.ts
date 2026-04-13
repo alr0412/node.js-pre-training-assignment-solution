@@ -1,17 +1,25 @@
 import { Todo } from './types';
 
 export function addTodo(state: Todo[], todo: Todo): Todo[] {
-  throw new Error('addTodo: not implemented');
+  return [...state, todo];
 }
 
 export function updateTodo(state: Todo[], id: number, update: Partial<Omit<Todo, 'id' | 'createdAt'>>): Todo[] {
-  throw new Error('updateTodo: not implemented');
+  if (id <= state.length && id > 0) {
+    return state.map(task => task.id === id ? { ...task, ...update } : task);
+  } else {
+    throw new Error("Error: Invalid id");
+  }
 }
 
 export function removeTodo(state: Todo[], id: number): Todo[] {
-  throw new Error('removeTodo: not implemented');
+  if (id <= state.length && id > 0) {
+    return state.filter(task => task.id != id);
+  } else {
+    throw new Error("Error: Invalid id");
+  }
 }
 
 export function getTodo(state: Todo[], id: number): Todo | undefined {
-  throw new Error('getTodo: not implemented');
+  return state[id - 1];
 }

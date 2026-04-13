@@ -3,5 +3,12 @@ import { Todo, NewTodo, TodoStatus } from './types';
 let nextId = 1;
 
 export function createTodo(input: NewTodo): Todo {
-  throw new Error('createTodo: not implemented');
+  nextId++;
+  return {
+    id: nextId - 1,
+    title: input.title,
+    description: input.description,
+    status: (input.status ? input.status : TodoStatus.PENDING),
+    createdAt: new Date()
+  } as Todo;
 }

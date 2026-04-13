@@ -9,7 +9,7 @@ interface Todo {
 type NewTodo = {
     title: string;
     description?: string;
-    status: TodoStatus;
+    status?: TodoStatus;
 };
 
 enum TodoStatus {
@@ -18,4 +18,4 @@ enum TodoStatus {
     COMPLETED
 };
 
-export { Todo, TodoStatus };
+export { Todo, TodoStatus, NewTodo };
