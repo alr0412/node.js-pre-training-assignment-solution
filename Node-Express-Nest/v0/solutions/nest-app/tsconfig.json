@@ -3,6 +3,7 @@
     "module": "commonjs",
     "target": "es2017",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strict": true,
