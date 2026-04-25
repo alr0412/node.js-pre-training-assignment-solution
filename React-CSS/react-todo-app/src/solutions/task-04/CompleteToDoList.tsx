@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types';
-
+import { AddToDo } from '../task-03/AddToDo';
 /**
  * Task 4: CompleteToDoList Component
  * 
@@ -61,7 +61,7 @@ export const CompleteToDoList: React.FC = () => {
     <div>
       {/* TODO: Replace this with your implementation */}
       <h4>Complete ToDo List Component</h4>
-      <p>Implement immutable state updates here</p>
+      <AddToDo></AddToDo>
     </div>
   );
 }; 

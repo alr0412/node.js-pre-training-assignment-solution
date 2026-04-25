@@ -1,5 +1,6 @@
 import React from 'react';
-import { TodoItemProps } from '../../types';
+import { Todo, TodoItemProps } from '../../types';
+import { useState } from 'react';
 
 /**
  * Task 2: ToDoItem Component
@@ -45,13 +46,19 @@ export const ToDoItem: React.FC<TodoItemProps> = ({ todo }) => {
   // 
   // Example usage:
   // <ToDoItem todo={{ id: 1, title: 'Learn React', completed: true }} />
+  const [Todo,setTodo]=useState<Todo>(todo);
+  const handleChangeTodo=()=>{
+    const newTodo:Todo={...Todo,completed:!Todo.completed};
+    setTodo(newTodo);
+  }
 
   return (
     <div>
       {/* TODO: Replace this with your implementation */}
-      <h4>ToDo Item Component</h4>
-      <p className = {`todo-item ${todo.completed ? 'completed' : 'active'}`}>
-        {todo.title} - {todo.completed?'Completed':'Not Completed'}
+      {/*<h4>ToDo Item Component</h4>*/}
+      <p className = {`todo-item ${Todo.completed ? 'completed' : 'active'}`}>
+        {Todo.title} - {Todo.completed?'Completed':'Not Completed'}
+        <input type='checkbox' onChange={handleChangeTodo}></input>
       </p>
     </div>
   );
