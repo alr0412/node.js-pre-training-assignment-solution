@@ -57,7 +57,10 @@ export const ToDoItem: React.FC<TodoItemProps> = ({ todo }) => {
       {/* TODO: Replace this with your implementation */}
       {/*<h4>ToDo Item Component</h4>*/}
       <p className={`todo-item ${Todo.completed ? "completed" : "active"}`}>
-        {Todo.title} - {Todo.completed ? "Completed" : "Not Completed"}
+        <span>{Todo.title}</span>:
+        <span>
+          {Todo.title} - {Todo.completed ? "completed" : "not completed"}
+        </span>
         <input
           type="checkbox"
           defaultChecked={todo.completed}

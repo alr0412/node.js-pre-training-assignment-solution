@@ -138,10 +138,11 @@ export const AddToDoForm: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => handleInputChange(e.target.value)}
+            placeholder="add todo"
           />
         </label>
         <button type="submit" disabled={isDisabledButton}>
-          SUBMIT
+          submit
         </button>
       </form>
       <ToDoList todos={todos}></ToDoList>

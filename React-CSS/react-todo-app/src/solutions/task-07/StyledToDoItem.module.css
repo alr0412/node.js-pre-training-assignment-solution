@@ -8,6 +8,5 @@
 
 .todo-item.completed {
   background-color: #e8f5e8;
-  text-decoration: line-through;
   color: #666;
 } 

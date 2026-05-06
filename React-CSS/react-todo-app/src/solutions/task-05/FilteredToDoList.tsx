@@ -107,9 +107,10 @@ export const FilteredToDoList: React.FC = () => {
             onChange={(event) => {
               setInputValue(event.target.value);
             }}
+            placeholder="add todo"
           />
         </label>
-        <button type="submit">Add TO-DO</button>
+        <button type="submit">add</button>
       </form>
       <select
         onChange={(e) => {
