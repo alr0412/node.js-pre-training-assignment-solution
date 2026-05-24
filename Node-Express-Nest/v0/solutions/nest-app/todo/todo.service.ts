@@ -33,10 +33,7 @@ export class TodoService {
         const filterValue = filters[key as keyof TodoSearchFilters];
         const dataValue = t[key as keyof Todo];
 
-        console.log("Comparing " + filterValue + `(type ${typeof filterValue})` + " with " + dataValue + `(type ${typeof dataValue})`);
-
         if (filterValue === null || filterValue === undefined || filterValue === '') {
-          console.log(true);
           return true;
         }
 
@@ -48,5 +45,16 @@ export class TodoService {
 
       });
     });
+  }
+
+  completeTodo(id: number) {
+    const todo = this.todos.find(t => t.id === id);
+
+    if (!todo) {
+      return;
+    }
+
+    todo.completed = true;
+    return todo;
   }
 } 

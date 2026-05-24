@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { TodoSearchFilters } from './types';
 
@@ -8,7 +8,6 @@ export class TodoController {
 
   @Get()
   getAll() {
-    console.log("get all todos");
     return this.todoService.getAllTodos();
   }
 
@@ -25,12 +24,16 @@ export class TodoController {
       completed: completed === 'true'
     }
 
-    console.log(searchFilters);
     return this.todoService.searchTodos(searchFilters);
   }
 
   @Get(':id')
   getById(@Param('id') id: string) {
     return this.todoService.getTodoById(+id);
+  }
+
+  @Put(':id')
+  markCompleted(@Param('id') id: string) {
+    return this.todoService.completeTodo(+id);
   }
 } 
