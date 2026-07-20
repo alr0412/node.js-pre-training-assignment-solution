@@ -2,9 +2,23 @@ const express = require("express");
 const app = express();
 const logger = require("../task-03");
 const exeprionHandler = require("./middleware/exeptionHandler");
+const path = require("path");
 
 app.use(express.json());
 app.use(logger);
+app.use(
+  "/static",
+  express.static(
+    path.join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "React-CSS/react-todo-app/public",
+    ),
+  ),
+);
 
 let todos = [
   { id: 1, title: "Buy milk", completed: false },
@@ -44,6 +58,38 @@ app.post("/todos", (req, res, next) => {
     next(error);
     return;
   }
+});
+
+app.get("/todos/search", (req, res, next) => {
+  const { id, title, completed } = req.query;
+
+  let filteredTodos = todos;
+
+  if (id) {
+    filteredTodos = filteredTodos.filter((todo) =>
+      todo.id.toString().includes(id),
+    );
+  }
+
+  if (title) {
+    filteredTodos = filteredTodos.filter((todo) =>
+      todo.title.toLowerCase().includes(title.toLowerCase()),
+    );
+  }
+
+  if (completed) {
+    const isCompleted = completed === "true";
+    filteredTodos = filteredTodos.filter(
+      (todo) => todo.completed == isCompleted,
+    );
+  }
+
+  if (filteredTodos.length < 1) {
+    const error = new Error("No todos with specified parameters found");
+    return next(error);
+  }
+
+  res.status(200).json(filteredTodos);
 });
 
 app.get(`/todos/:id`, (req, res, next) => {

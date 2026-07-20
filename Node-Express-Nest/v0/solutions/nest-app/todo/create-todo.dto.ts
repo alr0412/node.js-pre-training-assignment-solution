@@ -1,4 +1,3 @@
-// NestJS DTO class for ToDo
 import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateTodoDto {
