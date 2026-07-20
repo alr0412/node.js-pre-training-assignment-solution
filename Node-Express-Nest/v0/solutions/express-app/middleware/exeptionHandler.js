@@ -1,5 +1,3 @@
-// Express.js error handler middleware for ToDo API
-// TODO: implement
 const errorHandler = (err, req, res, next) => {
   const status = err.statusCode || 500;
 

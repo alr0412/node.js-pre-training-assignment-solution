@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const logger = require("../task-03");
+const exeprionHandler = require("./middleware/exeptionHandler");
 
 app.use(express.json());
 app.use(logger);
@@ -20,12 +21,13 @@ app.get("/todos", (req, res) => {
   res.json(todos);
 });
 
-app.post("/todos", (req, res) => {
+app.post("/todos", (req, res, next) => {
   try {
     const { title } = req.body;
 
     if (!title) {
-      res.status(400).json({ error: "Title cant be empty" });
+      const error = new Error("Title cant be empty");
+      next(error);
       return;
     }
 
@@ -38,13 +40,13 @@ app.post("/todos", (req, res) => {
     todos.push(newTodo);
     res.status(201).json(newTodo);
   } catch (e) {
-    res
-      .status(500)
-      .json({ error: "Internal server error", details: e.message });
+    const error = new Error("Internal server error");
+    next(error);
+    return;
   }
 });
 
-app.get(`/todos/:id`, (req, res) => {
+app.get(`/todos/:id`, (req, res, next) => {
   const { id } = req.params;
 
   const searchTodo = todos.find((todo) => {
@@ -52,12 +54,15 @@ app.get(`/todos/:id`, (req, res) => {
   });
 
   if (!searchTodo) {
-    res.status(400).json({ error: "No Todos with such ID" });
+    const error = new Error("No Todos with such ID");
+    next(error);
     return;
   }
 
   res.status(200).json(searchTodo);
 });
+
+app.use(exeprionHandler);
 
 module.exports = app;
 
