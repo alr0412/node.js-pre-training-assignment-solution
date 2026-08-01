@@ -25,7 +25,7 @@ class MessageSystem extends EventEmitter {
 
     // Rate limiter window
     this.RATE_LIMIT_WINDOW = 5000;
-    this.MAX_MESSAGES_IN_WINDOW = 8;
+    this.MAX_MESSAGES_IN_WINDOW = 200;
     this.lastMessagesCount = 0;
     this.windowStartTime = Date.now();
   }
@@ -83,6 +83,8 @@ class MessageSystem extends EventEmitter {
     if (newMessage.type !== "message") {
       this.emit(`${newMessage.type}`, newMessage);
     }
+
+    return newMessage;
   }
 
   /**
@@ -139,18 +141,19 @@ class MessageSystem extends EventEmitter {
    *
    * @param {string} username - Username to add
    */
-  addUser(username, role, caller) {
+  addUser(username, role = "user", caller = { role: "admin" }) {
     if (caller.role !== "admin") {
       console.error("Only admins can add users");
       return;
     }
 
-    if (!this.getActiveUsers().some((user) => user.username === username)) {
+    if (!this.findUser(username)) {
       this.users.add({ username: username, role: role });
       // this.emit("user-joined", username);
       this.sendMessage("user-joined", username);
     } else {
-      throw new Error("Username is taken");
+      console.error("Username is taken");
+      return;
     }
   }
 
@@ -162,7 +165,7 @@ class MessageSystem extends EventEmitter {
    *
    * @param {string} username - Username to remove
    */
-  removeUser(username, caller) {
+  removeUser(username, caller = { role: "admin" }) {
     if (caller.role !== "admin") {
       console.error("Only admins can remove users");
       return;
@@ -214,7 +217,17 @@ class MessageSystem extends EventEmitter {
    * @returns {object} System stats
    */
   getStats() {
-    return `\nTotal messages: ${this.messages.length}\nTotal users: ${this.users.size}`;
+    return {
+      totalMessages: this.messages.length,
+      activeUsers: this.users.size,
+      messagesByType: {
+        message: this.messages.filter((message) => message.type === "message"),
+        notification: this.messages.filter(
+          (message) => message.type === "notification",
+        ),
+        alert: this.messages.filter((message) => message.type === "alert"),
+      },
+    };
   }
 
   // Search messages based on filters
