@@ -1,6 +1,11 @@
 const fs = require("fs");
 const fsPromises = require("fs").promises;
 const util = require("util");
+const net = require("net");
+
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const access = util.promisify(fs.access);
 
 /**
  * Event Loop Analysis and Async Debugging
@@ -19,12 +24,71 @@ function analyzeEventLoop() {
   // 4. Return analysis object with explanations
 
   const analysis = {
-    phases: [],
+    phases: ["timers", "pending callbacks", "poll", "check", "close callbacks"],
     executionOrder: [],
     explanations: [],
   };
 
-  console.log("Event loop analysis not implemented yet");
+  const logStep = (phase, message, description) => {
+    analysis.executionOrder.push({ phase, message });
+    analysis.explanations.push(`[${phase.toUpperCase()}] ${description}`);
+    console.log(`[${phase}] ${message}`);
+  };
+
+  analysis.executionOrder.push(
+    { phase: "poll", message: "Выполняется I/O коллбэк" },
+    {
+      phase: "microtask (nextTick)",
+      message: "Сработал process.nextTick внутри Poll",
+    },
+    {
+      phase: "microtask (promise)",
+      message: "Сработал Promise.then внутри Poll",
+    },
+    { phase: "check", message: "Сработал setImmediate" },
+    { phase: "close callbacks", message: "Сработал socket.on('close')" },
+    { phase: "timers", message: "Сработал setTimeout" },
+  );
+
+  analysis.explanations.push(
+    "[POLL] Фаза Poll обрабатывает завершенные операции ввода-вывода.",
+    "[microtask (NEXTTICK)] Выполняется мгновенно после текущего шага синхронного кода.",
+    "[microtask (PROMISE)] Выполняется сразу после очереди process.nextTick.",
+    "[CHECK] Фаза Check выполняет код сразу после завершения фазы Poll.",
+    "[CLOSE CALLBACKS] Фаза Close Callbacks очищает ресурсы и закрывает дескрипторы.",
+    "[TIMERS] Фаза Timers выполняет коллбэки таймеров после истечения их времени.",
+    "[PENDING CALLBACKS] Выполняет отложенные I/O коллбэки с предыдущей итерации.",
+  );
+
+  // Исправленный запуск асинхронного демонстрационного кода для вывода в консоль
+  fs.readFile(__filename, () => {
+    console.log("[poll] Выполняется I/O коллбэк");
+
+    setTimeout(() => {
+      console.log("[timers] Сработал setTimeout");
+    }, 0);
+
+    setImmediate(() => {
+      console.log("[check] Сработал setImmediate");
+    });
+
+    const socket = new net.Socket();
+    socket.on("close", () => {
+      console.log("[close callbacks] Сработал socket.on('close')");
+    });
+    socket.destroy();
+
+    process.nextTick(() => {
+      console.log(
+        "[microtask (nextTick)] Сработал process.nextTick внутри Poll",
+      );
+    });
+
+    Promise.resolve().then(() => {
+      console.log("[microtask (promise)] Сработал Promise.then внутри Poll");
+    });
+  });
+
   return analysis;
 }
 
@@ -43,9 +107,31 @@ function predictExecutionOrder(snippet) {
   const predictions = {
     snippet1: [
       // Basic event loop snippet predictions
+      "Start",
+      "End",
+      "Next Tick 1",
+      "Next Tick 2",
+      "Promise 1",
+      "Promise 2",
+      "Immediate 1",
+      "Immediate 2",
+      "Timer 1",
+      "Timer 2",
     ],
     snippet2: [
       // File system operations snippet predictions
+      "=== Start ===",
+      "=== End ===",
+      "NextTick",
+      "Nested NextTick",
+      "Timer",
+      "NextTick in Timer",
+      "Immediate",
+      "NextTick in Immediate",
+      "fs.readFile",
+      "NextTick in readFile",
+      "Immediate in readFile",
+      "Timer in readFile",
     ],
   };
 
@@ -67,11 +153,32 @@ async function fixRaceCondition() {
   const files = ["file1.txt", "file2.txt", "file3.txt"];
 
   try {
-    // Implementation goes here
-    console.log("Race condition fix not implemented yet");
-    return [];
-  } catch (error) {
-    throw new Error(`Failed to process files: ${error.message}`);
+    const promises = files.map((file) => readFile(file, "utf8"));
+    const contents = await Promise.all(promises);
+
+    const results = contents.map((content) => content.toUpperCase());
+    console.log("All files processed successfully:", results);
+    return results;
+  } catch (err) {
+    console.warn("Error reading files, starting recovery: ", err.message);
+
+    try {
+      const recoveryPromises = files.map((file) => {
+        const defaultContent = `Content of ${file}`;
+
+        return writeFile(file, defaultContent, "utf8").then(() => {
+          console.log(`Created and initialized: ${file}`);
+          return defaultContent.toUpperCase();
+        });
+      });
+
+      const recoveredResults = await Promise.all(recoveryPromises);
+      return recoveredResults;
+    } catch (writeError) {
+      throw new Error(
+        `Critical I/O Failure during recovery: ${writeError.message}`,
+      );
+    }
   }
 }
 
@@ -94,9 +201,32 @@ async function fixCallbackHell(userId) {
     // Step 2: Read user preferences
     // Step 3: Read user activity
     // Step 4: Combine data and write result
+    await access(`user-${userId}.json`);
 
-    console.log("Callback hell fix not implemented yet");
-    return null;
+    const user = await readFile(`user-${userId}.json`, "utf8").then(JSON.parse);
+
+    return Promise.all([
+      readFile(`preferences-${userId}.json`, "utf8").then(JSON.parse),
+      readFile(`activity-${userId}.json`, "utf8").then(JSON.parse),
+    ])
+      .then(([preferences, activity]) => {
+        const combinedData = {
+          user,
+          preferences,
+          activity,
+          processedAt: new Date(),
+        };
+
+        return writeFile(
+          `processed-${userId}.json`,
+          JSON.stringify(combinedData, null, 2),
+        ).then(() => combinedData);
+      })
+      .catch((error) => {
+        throw new Error(
+          `Failed to process user preferences/activity: ${error.message}`,
+        );
+      });
   } catch (error) {
     throw new Error(`Failed to process user data: ${error.message}`);
   }
@@ -115,8 +245,43 @@ async function fixMixedAsync() {
   // 4. No proper async/await usage
 
   try {
-    // Implementation goes here
-    console.log("Mixed async fix not implemented yet");
+    console.log("Starting data processing...");
+
+    return readFile("input.txt", "utf8")
+      .then((data) => {
+        console.log("File read successfully");
+
+        return data.toUpperCase();
+      })
+      .then((processedData) => writeFile("output.txt", processedData))
+      .then(() => {
+        console.log("File written successfully");
+
+        return readFile("output.txt", "utf8");
+      })
+      .then((verifyData) => {
+        console.log("Verification successful");
+        console.log("Data length:", verifyData.length);
+      })
+      .catch((err) => {
+        console.error("Processing error:", err.message || err);
+
+        if (err.code === "ENOENT") {
+          return writeFile("input.txt", "Hello World!")
+            .then(() => {
+              console.log("Created input file, please run again");
+            })
+            .catch((writeErr) => {
+              console.error(
+                "Could not create input file:",
+                writeErr.message || writeErr,
+              );
+              throw writeErr;
+            });
+        }
+
+        throw err;
+      });
   } catch (error) {
     throw new Error(`Failed to process data: ${error.message}`);
   }
@@ -124,7 +289,7 @@ async function fixMixedAsync() {
 
 /**
  * Demonstrate all event loop phases
- * @returns {Promise} Promise that resolves when demonstration is complete
+ *
  */
 async function demonstrateEventLoop() {
   // TODO: Create comprehensive event loop demonstration
@@ -134,8 +299,38 @@ async function demonstrateEventLoop() {
   // 4. Show check phase (setImmediate)
   // 5. Show close callbacks phase
   // 6. Demonstrate microtask priority (nextTick, Promises)
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("setTimeout");
+    }, 0);
 
-  console.log("Event loop demonstration not implemented yet");
+    const client = net.connect({ port: 9999 }, () => {});
+    client.on("error", () => {
+      console.log("Pending callback");
+    });
+
+    fs.readFile(__filename, () => {
+      console.log("readFile");
+      resolve();
+    });
+
+    setImmediate(() => {
+      console.log("setImmediate");
+    });
+
+    const stream = fs.createReadStream(__filename);
+    stream.on("close", () => {
+      console.log("Closed callback");
+    });
+    stream.destroy();
+
+    process.nextTick(() => {
+      console.log("nextTick");
+    });
+    Promise.resolve().then(() => {
+      console.log("Promise.resolve()");
+    });
+  });
 }
 
 /**
@@ -170,8 +365,9 @@ async function createTestFiles() {
   };
 
   try {
-    // Implementation goes here
-    console.log("Test files creation not implemented yet");
+    for (const key in testData) {
+      await writeFile(key, JSON.stringify(testData[key], null, 2), "utf-8");
+    }
   } catch (error) {
     console.error("Failed to create test files:", error.message);
   }
@@ -189,7 +385,31 @@ function logWithPhase(message, phase = "unknown") {
   // 3. Add color coding for different phases
   // 4. Format output for better readability
 
-  console.log(`[${phase}] ${message}`);
+  const now = new Date();
+  const timestamp =
+    now.toTimeString().split(" ")[0] +
+    "." +
+    String(now.getMilliseconds()).padStart(3, "0");
+
+  const colors = {
+    sync: "\x1b[1m\x1b[37m",
+    microtask: "\x1b[35m",
+    timers: "\x1b[33m",
+    pending: "\x1b[31m",
+    poll: "\x1b[34m",
+    check: "\x1b[32m",
+    close: "\x1b[90m",
+    unknown: "\x1b[0m",
+  };
+
+  const resetColor = "\x1b[0m";
+
+  const normalizedPhase = phase.toLowerCase();
+  const color = colors[normalizedPhase] || colors["unknown"];
+
+  const phaseTag = `[${phase}]`.padEnd(13);
+
+  console.log(`${color}[${timestamp}] ${phaseTag} ${message}${resetColor}`);
 }
 
 // Export functions and data
@@ -205,7 +425,7 @@ module.exports = {
 };
 
 // Example usage (for testing):
-const isReadyToTest = false;
+const isReadyToTest = true;
 
 if (isReadyToTest) {
   async function runExamples() {
