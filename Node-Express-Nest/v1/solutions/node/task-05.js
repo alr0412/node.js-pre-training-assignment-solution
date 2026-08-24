@@ -91,19 +91,19 @@ class AnalyticsTracker {
 class ConsoleLogger {
   todoCreated(data) {
     console.log(
-      `📝 [${data.timestamp}] Created "${data.todo.title}" (ID: ${data.todo.id})`
+      `📝 [${data.timestamp}] Created "${data.todo.title}" (ID: ${data.todo.id})`,
     );
   }
   todoUpdated(data) {
     console.log(
       `✏️  [${data.timestamp}] Updated ID ${
         data.newTodo.id
-      }; changed: ${data.changes.join(", ")}`
+      }; changed: ${data.changes.join(", ")}`,
     );
   }
   todoDeleted(data) {
     console.log(
-      `🗑️  [${data.timestamp}] Deleted "${data.todo.title}" (ID: ${data.todo.id})`
+      `🗑️  [${data.timestamp}] Deleted "${data.todo.title}" (ID: ${data.todo.id})`,
     );
   }
   todoViewed(data) {
@@ -114,19 +114,19 @@ class ConsoleLogger {
   }
   todoNotFound(data) {
     console.warn(
-      `⚠️  [${data.timestamp}] Not found: id=${data.todoId} op=${data.operation}`
+      `⚠️  [${data.timestamp}] Not found: id=${data.todoId} op=${data.operation}`,
     );
   }
   validationError(data) {
     console.error(
-      `❌ [${data.timestamp}] Validation error: ${data.errors.join(", ")}`
+      `❌ [${data.timestamp}] Validation error: ${data.errors.join(", ")}`,
     );
   }
   serverError(data) {
     console.error(
       `💥 [${data.timestamp}] Server error in ${data.operation}: ${
         data.error && data.error.message
-      }`
+      }`,
     );
   }
 }
