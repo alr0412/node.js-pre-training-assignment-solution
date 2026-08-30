@@ -1,0 +1,11 @@
+INSERT INTO todos (title,description,status)
+VALUES ('Test todo','just a test','active');
+
+SELECT * FROM todos;
+
+UPDATE todos
+SET status = 'completed'
+WHERE id = 2;
+
+DELETE FROM todos
+WHERE id = 2;

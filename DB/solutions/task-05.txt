@@ -1,0 +1,16 @@
+SELECT COUNT(*) FROM todos
+WHERE status = 'active';
+
+SELECT COUNT(*) FROM todos
+WHERE status = 'completed';
+
+SELECT users.name, COUNT(todos.id)
+FROM users
+JOIN todos ON users.id = todos.user_id
+GROUP BY users.id, users.name, users.email;
+
+SELECT users.name
+FROM users
+LEFT JOIN todos ON users.id = todos.user_id
+GROUP BY users.id, users.name
+HAVING COUNT(todos.id) = 0;

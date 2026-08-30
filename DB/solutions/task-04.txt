@@ -1,0 +1,15 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO users (name, email) VALUES 
+    ('Alice Johnson', 'alice@example.com'),
+    ('Bob Smith', 'bob@example.com'),
+    ('Carol Davis', 'carol@example.com'),
+    ('David Wilson', 'david@example.com');
+
+ALTER TABLE todos 
+ADD COLUMN user_id INTEGER REFERENCES users(id);

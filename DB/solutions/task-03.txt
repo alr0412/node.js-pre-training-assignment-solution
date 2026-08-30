@@ -1,0 +1,27 @@
+INSERT INTO todos (title, description, status) VALUES
+    ('Complete project proposal', 'Write and submit the Q3 project proposal to stakeholders', 'active'),
+    ('Buy groceries', 'Milk, eggs, bread, fruits, and vegetables', 'active'),
+    ('Schedule dentist appointment', 'Call the dental clinic for a checkup', 'active'),
+    ('Review pull requests', 'Review and merge pending PRs from the team', 'completed'),
+    ('Prepare presentation', 'Create slides for the upcoming team meeting', 'active'),
+    ('Pay utility bills', 'Electricity, water, and internet bills', 'active'),
+    ('Plan weekend trip', 'Research destinations and book accommodations', 'completed'),
+    ('Update documentation', 'Update the API documentation with new endpoints', 'active'),
+    ('Clean workspace', 'Organize desk and file management system', 'active'),
+    ('Send weekly report', 'Compile and send the weekly progress report to manager', 'completed');
+
+SELECT * FROM todos
+WHERE status = 'active';
+
+SELECT * FROM todos
+WHERE status = 'completed';
+
+SELECT * FROM todos
+ORDER BY created_at;
+
+SELECT * FROM todos
+ORDER BY created_at DESC;
+
+SELECT * FROM todos
+WHERE title LIKE '%week%'
+    OR description LIKE '%week%';
