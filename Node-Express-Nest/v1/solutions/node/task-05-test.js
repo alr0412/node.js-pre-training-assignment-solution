@@ -4,7 +4,7 @@
  * Run: node task-05-test.js
  */
 const assert = require("assert");
-const { TodoServer } = require("./task-051");
+const { TodoServer } = require("./task-05");
 
 async function httpJson(method, url, body) {
   const opts = {
@@ -50,7 +50,7 @@ async function run() {
   const id = res.json.data.id;
   assert.ok(
     captured.created && captured.created.todo.id === id,
-    "todoCreated event not captured"
+    "todoCreated event not captured",
   );
 
   // 2) list
@@ -63,7 +63,7 @@ async function run() {
   assert.equal(res.status, 200);
   assert.ok(
     captured.viewed && captured.viewed.todo.id === id,
-    "todoViewed event not captured"
+    "todoViewed event not captured",
   );
 
   // 4) update
@@ -77,7 +77,7 @@ async function run() {
     captured.updated &&
       Array.isArray(captured.updated.changes) &&
       captured.updated.changes.length >= 1,
-    "todoUpdated event missing changes"
+    "todoUpdated event missing changes",
   );
 
   // 5) invalid json
@@ -100,7 +100,7 @@ async function run() {
   assert.equal(res.status, 200);
   assert.ok(
     captured.deleted && captured.deleted.todo.id === id,
-    "todoDeleted event not captured"
+    "todoDeleted event not captured",
   );
 
   // 8) analytics
