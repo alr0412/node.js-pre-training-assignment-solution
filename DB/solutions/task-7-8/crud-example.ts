@@ -1,0 +1,40 @@
+import { AppDataSource } from "./src/config/data-source";
+import { User } from "./src/entities/User";
+import { Todo } from "./src/entities/Todo";
+
+async function CRUDExample() {
+    await AppDataSource.initialize();
+    const todoRepository = AppDataSource.getRepository(Todo);
+
+    // Create todo
+    const newTodo = new Todo();
+
+    newTodo.title = "Created todo";
+    newTodo.description = "Description of active todo"
+
+    await todoRepository.save(newTodo);
+    console.log("Created new Todo", newTodo);
+
+    // Read todos
+    const todos = await todoRepository.find();
+
+    todos.forEach((t) => console.log(t));
+
+    // Update todo
+    const updateTodo = await todoRepository.findOneBy({ id: newTodo.id })
+
+    if (updateTodo) {
+        updateTodo.status = 'completed';
+        await todoRepository.save(updateTodo);
+        console.log("Updated status to completed", updateTodo)
+    }
+
+    //Delete todo
+    await todoRepository.delete(newTodo.id)
+
+    console.log("Deleted todo with id ", newTodo.id);
+
+    await AppDataSource.destroy();
+}
+
+CRUDExample();

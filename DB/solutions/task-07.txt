@@ -1,0 +1,11 @@
+Commit hash: e6ef7a798bf19e447e165ae415f5744ab1265c27
+
+Chose TypeORM for its TypeScript support, PostgreSQL compatibility, and built-in migration/seeding capabilities.
+
+data-source.ts - Database connection configuration with environment variables
+
+User.ts - User entity with id, name, email, created_at fields and OneToMany relationship with todos
+
+Todo.ts - Todo entity with id, title, description, status, created_at, user_id fields and ManyToOne relationship with User
+
+seed.ts - Seed script that creates 2 users with 3 todos each
