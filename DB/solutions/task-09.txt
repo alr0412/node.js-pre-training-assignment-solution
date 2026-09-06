@@ -1,0 +1,32 @@
+CREATE TABLE audit_log (
+    id SERIAL PRIMARY KEY,
+    todo_id INTEGER NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('UPDATE','DELETE')),
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE FUNCTION process_todo_audit()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO audit_log (todo_id, action)
+        VALUES (NEW.id, 'UPDATE');
+        RETURN NEW;
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO audit_log (todo_id, action)
+        VALUES (OLD.id, 'DELETE');
+        RETURN OLD;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER todo_audit_update
+AFTER UPDATE ON todos
+FOR EACH ROW
+EXECUTE FUNCTION process_todo_audit();
+
+CREATE TRIGGER todo_audit_delete
+AFTER DELETE ON todos
+FOR EACH ROW
+EXECUTE FUNCTION process_todo_audit();
