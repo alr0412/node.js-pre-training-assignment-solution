@@ -1,3 +1,5 @@
+Commit hash: dc8aef6b14fa2d4b9022fc7ffcce4c181de570b4
+
 CREATE TABLE audit_log (
     id SERIAL PRIMARY KEY,
     todo_id INTEGER NOT NULL,
