@@ -1,0 +1,16 @@
+git rebase -i HEAD~3
+
+AFTER: 
+git log --oneline
+35b7fd7 (HEAD -> feature/user-authentication) Add test
+a79fdf9 Add middleware
+73d53f4 Update package.json
+2da1a51 Add auth.js
+9d96054 (master) Updated version
+42f8227 Changed README to current version
+4cbeb6c (feature/update-readme-v2) Changed README to v2
+0e01a92 (feature/update-readme-v1) Changed README to v1
+
+Use git merge to combine public or shared branches safely, 
+and use git rebase to keep your local feature branch 
+clean and linear before sharing
