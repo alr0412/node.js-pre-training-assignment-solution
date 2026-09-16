@@ -1,0 +1,15 @@
+git checkout -b "feature/add-scripts"
+git commit -m "Add scripts to package.json"
+git switch master
+git checkout -b "feature/add-dependencies"
+git switch master
+git branch -D "feature/add-scripts"
+
+git branch -a
+  feature/add-dependencies
+* master
+
+git log --graph --oneline
+7d5cebb (HEAD -> master) Add scripts to package.json
+f5101b8 (feature/add-dependencies) Add README.md and package.json
+4b2e4fb Create .gitignore

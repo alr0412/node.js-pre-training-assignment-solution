@@ -1,0 +1,31 @@
+git checkout -b "feature/update-readme-v1"
+git stage .
+git commit -m "Changed README to v1"
+git switch master
+git checkout -b "feature/update-readme-v2"
+git commit -m "Changed README to v2"
+git stage .
+git commit -m "Changed README to v2"
+git switch master
+git merge feature/update-readme-v1
+git merge feature/update-readme-v2
+git stage .
+git commit -m "Changed README to current version"
+
+Conflict:
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Automatic merge failed; fix conflicts and then commit the result.
+
+<<<<<<< HEAD
+My Awesome Project v1
+=======
+My Super Project v2
+>>>>>>> feature/update-readme-v2
+
+Resolved:
+First, My Awesome Project v1
+Now, My Super Project v2
+
+Final commit:
+Changed README to current version

@@ -1,0 +1,10 @@
+git init
+git stage .gitignore
+git commit -m "Create .gitignore"
+git stage README.md
+git stage package.json
+git commit -m "Add README.md and package.json"
+
+git log --oneline
+f5101b8 (HEAD -> master) Add README.md and package.json
+4b2e4fb Create .gitignore
