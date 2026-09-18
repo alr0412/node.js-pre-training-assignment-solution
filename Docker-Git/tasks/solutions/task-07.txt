@@ -1,0 +1,101 @@
+docker-compose.yml
+services:
+  api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: task07_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: task07db
+      DB_USER: task07user
+      DB_PASSWORD: task07pass
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - task07_net
+
+  postgres:
+    image: postgres:16
+    container_name: task07_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: task07db
+      POSTGRES_USER: task07user
+      POSTGRES_PASSWORD: task07pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U task07user -d task07db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - task07_net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: task07_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@task07.local
+      PGADMIN_DEFAULT_PASSWORD: adminpass
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_CONFIG_ALLOW_SPECIAL_EMAIL_DOMAINS: "['local']"
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - task07_net
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  task07_net:
+    driver: bridge
+
+
+DOCKER COMMANDS USED:
+docker-compose up
+docker-compose ps
+curl http://localhost:3000/health
+curl http://localhost:3000/data
+docker-compose logs -f api
+docker-compose down
+
+URLS&credentials
+Node.js API:
+  - Health endpoint:  http://localhost:3000/health
+  - Data endpoint:    http://localhost:3000/data
+pgAdmin:
+  - URL:       http://localhost:5050
+  - Email:     admin@task07.local
+  - Password:  adminpass
+
+PostgreSQL:
+  - Host: postgres
+  - Port:                               5432
+  - Database:                           task07db
+  - Username:                           task07user
+  - Password:                           task07pass
+
+docker-compose ps
+NAME              IMAGE               COMMAND                  SERVICE    STATUS                    PORTS
+task07_api        task-07-api         "node server.js"         api        Up 2 minutes (healthy)    0.0.0.0:3000->3000/tcp
+task07_pgadmin    dpage/pgadmin4      "/entrypoint.sh"         pgadmin    Up 2 minutes              0.0.0.0:5050->80/tcp
+task07_postgres   postgres:16         "docker-entrypoint.s…"   postgres   Up 2 minutes (healthy)    0.0.0.0:5432->5432/tcp
