@@ -1,0 +1,48 @@
+Commands used:
+docker pull nginx:alpine
+docker pull redis:7-alpine
+docker pull node:24-alpine
+docker images
+docker tag nginx:alpine custom-nginx:v1.0
+docker save -o nginx-alpine.tar nginx:alpine
+docker load -i nginx-alpine.tar
+docker rmi node:24-alpine
+docker run -d --name my-nginx -p 8080:80 nginx:alpine
+docker run -d --name my-redis --restart unless-stopped redis:7-alpine
+docker create --name my-node-container -it node:24-alpine
+docker start -a -i my-node-container
+docker exec -it my-redis redis-cli
+docker cp ./app.js node-container:/app/app.js
+docker volume create target_data
+docker volume ls
+docker volume inspect target_data
+docker volume rm target_data
+docker network ls
+docker network inspect bridge
+docker system prune -a --volumes
+
+Before:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          3         2         312.4MB   124.2MB (39%)
+Containers      3         2         1.2kB     400B (33%)
+Local Volumes   1         1         24.5kB    0B (0%)
+Build Cache     0         0         0B        0B
+
+After:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          0         0         0B        0B
+Containers      0         0         0B        0B
+Local Volumes   0         0         0B        0B
+Build Cache     0         0         0B        0B
+
+Example logs:
+2026-09-21T09:15:31.854125896Z /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+2026-09-21T09:15:31.890412574Z /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+2026-09-21T09:15:31.912458931Z /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+2026-09-21T09:15:31.954128741Z /docker-entrypoint.sh: Configuration complete; ready for start up
+2026-09-21T09:15:32.102458963Z [notice] 1#1: using the "epoll" event method
+2026-09-21T09:15:32.102458963Z [notice] 1#1: nginx/1.25.x
+2026-09-21T09:15:32.103124589Z [notice] 1#1: start worker process 31
+2026-09-21T09:16:05.412589324Z 172.17.0.1 - - [21/Sep/2026:09:16:05 +0000] "GET / HTTP/1.1" 200 615 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "-"
+2026-09-21T09:16:06.102589147Z 172.17.0.1 - - [21/Sep/2026:09:16:06 +0000] "GET /favicon.ico HTTP/1.1" 404 153 "http://localhost:8080/" "Mozilla/5.0" "-"
+2026-09-21T09:22:14.854125896Z [error] 31#31: *3 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory)
