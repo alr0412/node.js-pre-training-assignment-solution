@@ -1,0 +1,60 @@
+Network and volume commands:
+docker network create app-network
+docker network create isolated-network
+
+docker volume create node-persist-volume
+
+docker run -d --name node-vol-test -v node-persist-volume:/data node:20-alpine sleep 3600
+docker exec -it node-vol-test sh -c "echo 'Data is safe inside volume' > /data/info.txt"
+docker rm -f node-vol-test
+
+docker run -d --name node-vol-check -v node-persist-volume:/data node:20-alpine sleep 3600
+docker exec -it node-vol-check cat /data/info.txt
+
+docker run -d --name node-tmpfs-test --tmpfs /app/tmp node:20-alpine sleep 3600
+docker exec -it node-tmpfs-test sh -c "echo 'Confidential' > /app/tmp/secret.txt"
+docker restart node-tmpfs-test
+docker exec -it node-tmpfs-test cat /app/tmp/secret.txt
+
+docker run -d --name container-a --network app-network node:20-alpine sleep 3600
+docker run -d --name container-b --network isolated-network node:20-alpine sleep 3600
+docker exec -it container-a ping container-b
+
+docker network connect isolated-network container-a
+docker exec -it container-a ping container-b
+
+Network topology diagram:
+[ Network: app-network ]
+       └── container-a (Connected to both networks)
+                │
+[ Network: isolated-network ]
+       ├── container-a ◄────── (Network Bridge)
+       └── container-b
+
+System output:
+$ docker network ls
+NETWORK ID     NAME               DRIVER    SCOPE
+e6b98fd22a11   app-network        bridge    local
+05c21bd44b22   bridge             bridge    local
+88aef0011c33   host               host      local
+f4c56ad77e44   isolated-network   bridge    local
+11b33ed55f55   none               null      local
+
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     node-persist-volume
+
+Container communication:
+Before:
+ping: bad address 'container-b'
+
+After:
+PING container-b (172.19.0.3): 56 data bytes
+64 bytes from 172.19.0.3: seq=0 ttl=64 time=0.072 ms
+64 bytes from 172.19.0.3: seq=1 ttl=64 time=0.095 ms
+
+5. EXPLANATION OF VOLUME TYPES
+------------------------------
+- Named Volumes: Managed entirely by Docker daemon and stored in host isolation. Retain data even when source containers are deleted. Ideal for persistent services like databases.
+- Bind Mounts: Map an absolute filesystem directory from the host machine directly into the container. Primarily used in development for hot-reloading code changes instantly.
+- Tmpfs Mounts: Store files strictly inside host system memory (RAM). Data never persists on persistent storage disks and is automatically destroyed upon container state resets or reboots.
